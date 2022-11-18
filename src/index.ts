@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import { gsap, Back, Linear } from 'gsap';
-import { PixiPlugin } from "gsap/dist/PixiPlugin";
+import {gsap} from 'gsap';
+import {PixiPlugin} from "gsap/dist/PixiPlugin";
 import './styles/global.css';
 
 PixiPlugin.registerPIXI(PIXI);
@@ -27,37 +27,50 @@ container.on('mousemove', (e: PIXI.FederatedPointerEvent) => {
     // x=x0+r⋅cos δ
     // y=y0+r⋅sin δ
     // вроде как длина мд двух точек на окружности
-    // 2R * sin(a / 2)
+    // 2R * sin(δ / 2)
 
     let
         offsetX = app.view.getBoundingClientRect().x,
         offsetY = app.view.getBoundingClientRect().y,
         pointerX = e.x - offsetX,
         pointerY = e.y - offsetY,
-        centerX = app.screen.width / 2,
-        centerY = app.screen.height / 2,
+        magnetismCondition = pointerX > RADIUS/4 && pointerX < app.screen.width - RADIUS/4 && pointerY > RADIUS/4 && pointerY < app.screen.height - RADIUS/4 ,
+        /* centerX = pointerX,
+         centerY = pointerY,*/
+        RadiusMoveCircle = app.screen.width / 2 - RADIUS / 2,
+        centerX = magnetismCondition ? (pointerX > RadiusMoveCircle && pointerX < app.screen.width - RadiusMoveCircle) ? pointerX : pointerX < RadiusMoveCircle ? RadiusMoveCircle : app.screen.width - RadiusMoveCircle : app.screen.width/2 ,
+        centerY = magnetismCondition ? (pointerY > RadiusMoveCircle && pointerY < app.screen.height - RadiusMoveCircle) ? pointerY : pointerY < RadiusMoveCircle ? RadiusMoveCircle : app.screen.height - RadiusMoveCircle : app.screen.height/2,
+        /*    centerX = app.screen.width / 2,
+            centerY = app.screen.height / 2,*/
         // угол между центром квадрата и лучом от указателя мыши к центру
-        pointerAngle = Math.atan2(pointerY - centerY, pointerX - centerX) * 180 / Math.PI,
+        pointerAngle = Math.atan2(pointerY - centerY, pointerX - centerX) * 180 / Math.PI + 90,
         // насколько сместиться по окружности точкам
-        degreeOffset = 10,
+        degreeOffset = 30,
         circleLeft = 180,
         circleRight = 0,
-        circleMiddle = 270,
-        anchor1X = centerX + RADIUS * Math.cos((circleLeft + degreeOffset) * RAD),
-        anchor1Y = centerY + RADIUS * Math.sin((circleLeft + degreeOffset) * RAD),
-        anchor2X = centerX + RADIUS * Math.cos((circleRight - degreeOffset) * RAD),
-        anchor2Y = centerY + RADIUS * Math.sin((circleRight - degreeOffset) * RAD)
-        // curveBottomL = 2 * RADIUS * Math.sin((circleLeft - 2 * Math.abs(degreeOffset)) / 2 * RAD)
+      //  circleMiddle = 270,
+        anchor1X = centerX + RADIUS * Math.cos((circleLeft + degreeOffset + pointerAngle) * RAD),
+        anchor1Y = centerY + RADIUS * Math.sin((circleLeft + degreeOffset + pointerAngle) * RAD),
+        anchor2X = centerX + RADIUS * Math.cos((circleRight - degreeOffset + pointerAngle) * RAD),
+        anchor2Y = centerY + RADIUS * Math.sin((circleRight - degreeOffset + pointerAngle) * RAD),
+        anchorX = magnetismCondition ? 2 * pointerX - centerX : app.screen.width/2,
+        anchorY = magnetismCondition ? 2 * pointerY - centerY : app.screen.height/2
     ;
 
+
+    console.log(pointerAngle)
 
     graphicCurve.clear();
     graphicCurve.beginFill(0xAA4F08, 1);
     graphicCurve.moveTo(anchor1X, anchor1Y)
     // xz
-    const middleYPoint = centerY - RADIUS * Math.sin(circleMiddle * RAD);
-    graphicCurve.quadraticCurveTo(anchor2X / 2, middleYPoint, anchor2X, anchor2Y)
+    // const middleYPoint = centerY - RADIUS * Math.sin(circleMiddle * RAD);
+    graphicCurve.quadraticCurveTo(anchorX, anchorY, anchor2X, anchor2Y)
     graphicCurve.endFill();
+    graphicCircle.clear();
+    graphicCircle.beginFill(0xAA4F08, 0.7);
+    graphicCircle.drawEllipse(centerX, centerY, RADIUS, RADIUS);
+    graphicCircle.endFill();
 })
 
 
@@ -69,10 +82,6 @@ container.addChild(graphicCircle)
 centerIt(graphicCurve)
 centerIt(graphicCircle)
 
-
-graphicCircle.beginFill(0xAA4F08, 0.7);
-graphicCircle.drawEllipse(200, 200, RADIUS, RADIUS);
-graphicCircle.endFill();
 
 app.stage.addChild(container);
 
