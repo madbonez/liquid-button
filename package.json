@@ -1,0 +1,23 @@
+{
+  "name": "pixijs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parcel src/index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "gsap": "3.11.3",
+    "pixi.js": "7.0.4"
+  },
+  "devDependencies": {
+    "@types/pixi.js": "5.0.0",
+    "parcel": "^2.8.0",
+    "punycode": "^1.4.1",
+    "querystring-es3": "^0.2.1"
+  }
+}
