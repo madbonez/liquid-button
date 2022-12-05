@@ -2,7 +2,7 @@ import * as PIXI from 'pixi.js';
 import { gsap } from 'gsap';
 import { PixiPlugin } from "gsap/dist/PixiPlugin";
 import './styles/global.css';
-import { centerIt, drawCircle } from './utils';
+import {centerIt, drawCircle, drawCurve} from './utils';
 import { stateListener } from './stateListener';
 
 PixiPlugin.registerPIXI(PIXI);
@@ -76,8 +76,17 @@ const circleProps = {
     radius: RADIUS,
 }
 
+const curveProps = {
+    anchorX: 0,
+    anchorY: 0,
+    anchor1X: 0,
+    anchor1Y: 0,
+    anchor2Y: 0,
+    anchor2X: 0,
+}
+
 drawCircle(circleProps, graphicCircle);
-const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS);
+const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, curveProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS);
 
 let lastCircleTween;
 let lastCurveTween;
@@ -119,5 +128,6 @@ container.on('mousemove', (e: PIXI.FederatedPointerEvent) => {
 // main animation loop
 app.ticker.add(() => {
     drawCircle(circleProps, graphicCircle);
+    drawCurve(curveProps, graphicCurve);
 })
 

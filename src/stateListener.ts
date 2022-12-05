@@ -1,6 +1,6 @@
 import { gsap, Power2 } from 'gsap';
 
-export const stateListener = (centerXInit: number, centerYInit: number, circleProps: any, circleRadius: number, boundsRadius: number, catchRadius: number) => {
+export const stateListener = (centerXInit: number, centerYInit: number, circleProps: any, curveProps: any, circleRadius: number, boundsRadius: number, catchRadius: number) => {
     let leaveTl;
     let enterTl;
     let insideTl;
@@ -75,8 +75,8 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
         }
 
         if (lastState === 'inside' && newSate === 'inside') {
-            let newCenterX = centerX + deltaX * 0.5
-            let newCenterY = centerY + deltaY * 0.5
+            let newCenterX = centerX + deltaX * (boundsRadius - circleRadius)/boundsRadius
+            let newCenterY = centerY + deltaY * (boundsRadius - circleRadius)/boundsRadius
 
             let distanceBetweenCenters = Math.ceil(Math.sqrt(Math.pow((newCenterX - centerXInit), 2) + Math.pow((newCenterY - centerYInit), 2)))
             console.log(distanceBetweenCenters, boundsRadius - circleRadius)
