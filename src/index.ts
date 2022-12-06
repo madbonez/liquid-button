@@ -2,16 +2,16 @@ import * as PIXI from 'pixi.js';
 import { gsap } from 'gsap';
 import { PixiPlugin } from "gsap/dist/PixiPlugin";
 import './styles/global.css';
-import {centerIt, drawCircle, drawCurve} from './utils';
+import {centerIt, drawCircle, drawCurve, drawCursor} from './utils';
 import { stateListener } from './stateListener';
 
 PixiPlugin.registerPIXI(PIXI);
 gsap.registerPlugin(PixiPlugin);
 
-const RAD = Math.PI / 180;
 const RADIUS = 100;
 const BOUNDS_RADIUS = 150;
-const CATCH_RADIUS = 200;
+const CATCH_RADIUS = 180;
+const CURSOR_RADIUS = 10;
 
 const app = new PIXI.Application({antialias: true, width: 440, height: 440, backgroundColor: 0xFFFFFF});
 document.body.appendChild(app.view as any);
@@ -24,17 +24,21 @@ container.interactive = true;
 const graphicCurve = new PIXI.Graphics();
 // анимированный круг
 const graphicCircle = new PIXI.Graphics();
+// анимированный курсор
+const graphicCursor = new PIXI.Graphics();
 // внутри начинает притягиваться к курсору
 const graphicsHiddenCatchCircle = new PIXI.Graphics();
 // внутри двигаем круг вместе с курсором
 const graphicsHiddenBoundsCircle = new PIXI.Graphics();
 container.addChild(graphicCurve)
 container.addChild(graphicCircle)
+container.addChild(graphicCursor)
 container.addChild(graphicsHiddenCatchCircle)
 container.addChild(graphicsHiddenBoundsCircle)
 
 centerIt(graphicCurve, app)
 centerIt(graphicCircle, app)
+centerIt(graphicCursor, app)
 centerIt(graphicsHiddenCatchCircle, app)
 centerIt(graphicsHiddenBoundsCircle, app)
 
@@ -77,20 +81,24 @@ const circleProps = {
 }
 
 const curveProps = {
-    anchorX: 0,
-    anchorY: 0,
-    anchor1X: 0,
-    anchor1Y: 0,
-    anchor2Y: 0,
-    anchor2X: 0,
+    anchorX: centerXInit,
+    anchorY: centerYInit,
+    anchor1X: centerXInit,
+    anchor1Y: centerYInit,
+    anchor2Y: centerYInit,
+    anchor2X: centerXInit,
+}
+
+const cursorProps = {
+    centerX: centerXInit,
+    centerY: centerYInit,
+    radius: CURSOR_RADIUS,
 }
 
 drawCircle(circleProps, graphicCircle);
-const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, curveProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS);
+drawCursor(cursorProps, graphicCursor);
+const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, curveProps, cursorProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS);
 
-let lastCircleTween;
-let lastCurveTween;
-let lastBoundsState;
 container.on('mousemove', (e: PIXI.FederatedPointerEvent) => {
     let
         pointerX = e.x - offsetX,
@@ -129,5 +137,6 @@ container.on('mousemove', (e: PIXI.FederatedPointerEvent) => {
 app.ticker.add(() => {
     drawCircle(circleProps, graphicCircle);
     drawCurve(curveProps, graphicCurve);
+    drawCursor(cursorProps, graphicCursor);
 })
 

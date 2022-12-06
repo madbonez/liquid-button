@@ -19,3 +19,10 @@ export function drawCurve(curveProps, graphicCurve) {
     graphicCurve.quadraticCurveTo(curveProps.anchorX, curveProps.anchorY, curveProps.anchor2X, curveProps.anchor2Y)
     graphicCurve.endFill();
 }
+
+export function drawCursor(cursorProps, graphicCursor ) {
+    graphicCursor.clear();
+    graphicCursor.beginFill(0xAA4F08, 1);
+    graphicCursor.drawCircle(cursorProps.centerX, cursorProps.centerY, cursorProps.radius);
+    graphicCursor.endFill();
+}

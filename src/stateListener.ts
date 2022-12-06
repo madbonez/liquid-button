@@ -1,8 +1,7 @@
-import { gsap, Power2 } from 'gsap';
+import {gsap, Power2} from 'gsap';
 
-export const stateListener = (centerXInit: number, centerYInit: number, circleProps: any, curveProps: any, circleRadius: number, boundsRadius: number, catchRadius: number) => {
+export const stateListener = (centerXInit: number, centerYInit: number, circleProps: any, curveProps: any, cursorProps: any, circleRadius: number, boundsRadius: number, catchRadius: number) => {
     let leaveTl;
-    let enterTl;
     let insideTl;
     let lastState = 'outside';
     let centerX = centerXInit;
@@ -10,9 +9,14 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
 
     return (newSate: 'outside' | 'inside' | 'entered', pointerX: number, pointerY: number, deltaX: number, deltaY: number) => {
 
+        gsap.set(cursorProps, {
+            centerX: pointerX,
+            centerY: pointerY,
+        })
+
         let pointerAngle = Math.atan2(pointerY - centerY, pointerX - centerX) * 180 / Math.PI;
         pointerAngle = pointerAngle < 0 ? pointerAngle + 360 : pointerAngle
-        pointerAngle = pointerAngle * Math.PI /180
+        pointerAngle = pointerAngle * Math.PI / 180
 
         if (lastState !== 'outside' && newSate === 'outside') {
             centerX = centerXInit;
@@ -24,18 +28,30 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
                 .to(circleProps, {
                     centerX,
                     centerY,
-                    ease: Power2.easeOut,
-                    duration: 1
+                    ease: "power2.in",
+                    duration: 0.5
                 }, 'start');
+
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI / 3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI / 3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI /3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI / 3 + pointerAngle);
+            let anchorX = centerX;
+            let anchorY = centerY;
+
+            gsap.to(curveProps, {
+                anchor1X,
+                anchor1Y,
+                anchor2Y,
+                anchor2X,
+                anchorX,
+                anchorY,
+                ease: "power2.in",
+                duration: 0.5
+            })
         }
 
         if (newSate === 'entered') {
-            // x = radius *  cos(angle)
-            // y = radius *  sin(angle)
-            //  x= A+r⋅cos(α)
-            //  y = B+r⋅sin(α)
-            // A = x - r* cos(a)
-            // B = y - r* sin(a)
             let newX = boundsRadius * Math.cos(pointerAngle) + centerXInit;
             let newY = boundsRadius * Math.sin(pointerAngle) + centerYInit;
 
@@ -45,53 +61,97 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
             centerX = newCenterX;
             centerY = newCenterY;
 
-            if (lastState !== 'entered') {
-                enterTl = gsap.timeline();
-                enterTl
-                    .add('start')
-                    .to(circleProps, {
-                        centerX,
-                        centerY,
-                        // ease: Power2.easeInOut,
-                        // duration: 0.5
-                    }, 'start');
-            } else {
-                gsap.to(circleProps, {
-                    centerX,
-                    centerY,
-                })
-            }
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI / 3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI / 3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI / 3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI / 3 + pointerAngle);
+            let anchorX = 2 * pointerX - centerX;
+            let anchorY = 2 * pointerY - centerY;
+
+            gsap.to(circleProps, {
+                centerX,
+                centerY,
+                ease: Power2.easeOut,
+                duration: 0.3
+            })
+            gsap.to(curveProps, {
+                anchor1X,
+                anchor1Y,
+                anchor2Y,
+                anchor2X,
+                anchorX,
+                anchorY,
+                ease: Power2.easeOut,
+                duration: 0.3
+            })
         }
 
         if (lastState !== 'inside' && newSate === 'inside') {
             // первый раз отлепить от границы
             centerX = centerX < 200 ? centerX + 1 : centerX - 1;
             centerY = centerY < 200 ? centerY + 1 : centerY - 1;
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI / 3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI / 3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI / 3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI / 3 + pointerAngle);
+            let anchorX = centerX;
+            let anchorY = centerY;
+
             insideTl = gsap.timeline()
                 .to(circleProps, {
                     centerX,
                     centerY,
+                    ease: Power2.easeOut,
                 });
+            gsap.to(curveProps, {
+                anchor1X,
+                anchor1Y,
+                anchor2Y,
+                anchor2X,
+                anchorX,
+                anchorY,
+                ease: Power2.easeOut,
+            })
         }
 
         if (lastState === 'inside' && newSate === 'inside') {
-            let newCenterX = centerX + deltaX * (boundsRadius - circleRadius)/boundsRadius
-            let newCenterY = centerY + deltaY * (boundsRadius - circleRadius)/boundsRadius
+            let newCenterX = centerX + deltaX * (boundsRadius - circleRadius) / boundsRadius
+            let newCenterY = centerY + deltaY * (boundsRadius - circleRadius) / boundsRadius
+            centerX = newCenterX;
+            centerY = newCenterY;
 
-            let distanceBetweenCenters = Math.ceil(Math.sqrt(Math.pow((newCenterX - centerXInit), 2) + Math.pow((newCenterY - centerYInit), 2)))
-            console.log(distanceBetweenCenters, boundsRadius - circleRadius)
-            if ((boundsRadius - circleRadius) > distanceBetweenCenters) {
-                centerX = newCenterX;
-                centerY = newCenterY;
-
-                gsap.timeline()
-                    .to(circleProps, {
-                        centerX,
-                        centerY,
-                    })
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI / 3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI / 3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI / 3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI / 3 + pointerAngle);
+            let distanceBetweenCenterMouse = Math.ceil(Math.sqrt(Math.pow((pointerX - centerXInit), 2) + Math.pow((pointerY - centerYInit), 2)))
+            let anchorX
+            let anchorY
+            if (distanceBetweenCenterMouse > boundsRadius - 20) {
+                anchorX = 2 * pointerX - centerX;
+                anchorY = 2 * pointerY - centerY;
+            } else {
+                anchorX =  centerX;
+                anchorY =  centerY;
             }
-        }
 
+            gsap.to(circleProps, {
+                centerX,
+                centerY,
+                ease: 'none',
+            })
+            gsap.to(curveProps, {
+                anchor1X,
+                anchor1Y,
+                anchor2Y,
+                anchor2X,
+                anchorX,
+                anchorY,
+                duration:0.5,
+                ease: 'none',
+            })
+            //  }
+        }
         lastState = newSate;
     }
 }
