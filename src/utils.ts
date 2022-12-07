@@ -20,9 +20,4 @@ export function drawCurve(curveProps, graphicCurve) {
     graphicCurve.endFill();
 }
 
-export function drawCursor(cursorProps, graphicCursor ) {
-    graphicCursor.clear();
-    graphicCursor.beginFill(0xAA4F08, 1);
-    graphicCursor.drawCircle(cursorProps.centerX, cursorProps.centerY, cursorProps.radius);
-    graphicCursor.endFill();
-}
+
