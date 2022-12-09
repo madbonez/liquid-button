@@ -1,18 +1,23 @@
 import * as PIXI from 'pixi.js';
 import { gsap } from 'gsap';
 import { PixiPlugin } from "gsap/dist/PixiPlugin";
-import { centerIt, drawCircle, drawCurve } from './utils';
+import {centerIt, drawCircle, drawCurve, isEqual} from './utils';
 import { stateListener } from './stateListener';
 
 export class LqButton {
     private graphicsText: PIXI.Text;
-
+    private lastCircleProps = {};
+    private lastCurveProps = {};
     constructor(
         private rootElement: HTMLElement,
         public text: string,
         private debugMode: boolean,
         private color: number,
         private textColor: number,
+        private heightGradient: number,
+        private font: {size: number, lineHeight: number, fontFamily: string},
+        private size: number,
+        private radius: number,
     ) {
         this.init();
     }
@@ -26,37 +31,73 @@ export class LqButton {
         PixiPlugin.registerPIXI(PIXI);
         gsap.registerPlugin(PixiPlugin);
 
-        const RADIUS = 100;
-        const BOUNDS_RADIUS = 150;
-        const CATCH_RADIUS = 180;
+        const RADIUS = this.radius;
+        const BOUNDS_RADIUS = this.radius*4/3;
+        const CATCH_RADIUS = this.radius*17/12;
+        const SIZE = this.size;
 
         const app = new PIXI.Application({
             antialias: true,
-            width: 440,
-            height: 440,
-            backgroundColor: 0xFFFFFF,
+            width: SIZE ,
+            height: SIZE ,
+            backgroundColor: 0x000000,
             backgroundAlpha: this.debugMode ? 1 : 0
         });
 
         this.rootElement.appendChild(app.view as any);
 
         const container = new PIXI.Container();
-        container.hitArea = new PIXI.Rectangle(0, 0, 440, 440);
         container.interactive = true;
+        container.interactiveChildren = true;
+        container.hitArea = new PIXI.Rectangle(0, 0, SIZE , SIZE );
 
 // сегмент круга. эффект жвачки
         const graphicCurve = new PIXI.Graphics();
+        graphicCurve.interactive = true;
+        graphicCurve.cursor = 'pointer';
 // анимированный круг
         const graphicCircle = new PIXI.Graphics();
+        graphicCircle.interactive = true;
+        graphicCircle.cursor = 'pointer';
+
 // внутри начинает притягиваться к курсору
         const graphicsHiddenCatchCircle = new PIXI.Graphics();
+        graphicsHiddenCatchCircle.interactive = true;
+        graphicsHiddenCatchCircle.cursor = 'pointer'
 // внутри двигаем круг вместе с курсором
         const graphicsHiddenBoundsCircle = new PIXI.Graphics();
+        graphicsHiddenBoundsCircle.interactive = true;
+        graphicsHiddenBoundsCircle.cursor = 'pointer'
+
         this.graphicsText = new PIXI.Text(this.text, {
-            fontFamily: 'Arial',
-            fontSize: 24,
+            fontFamily: this.font.fontFamily,
+            fontSize: this.font.size,
+            lineHeight: this.font.lineHeight,
             fill: this.textColor,
         });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 400;
+        const ctx = canvas.getContext('2d');
+        const grd = ctx.createLinearGradient(0, 0, 0, 400);
+
+
+        function createGradTexture(color1, color2, size, heightGradient: number) {
+            const lineY = heightGradient / canvas.height;
+
+            grd.addColorStop(0, '#ff9300');
+            grd.addColorStop(lineY, '#ff9300');
+            grd.addColorStop(lineY, '#FFFFFF');
+            grd.addColorStop(1, '#FFFFFF');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, size, size);
+
+            return PIXI.Texture.from(canvas);
+        }
+
+        const gradient = createGradTexture(this.color, this.textColor, SIZE, this.heightGradient)
+
         container.addChild(graphicCurve)
         container.addChild(graphicCircle)
         container.addChild(graphicsHiddenCatchCircle)
@@ -115,7 +156,7 @@ export class LqButton {
             anchor2X: centerXInit,
         }
 
-        drawCircle(circleProps, graphicCircle, this.graphicsText, this.color);
+        drawCircle(circleProps, graphicCircle, this.graphicsText, gradient);
         const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, curveProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS);
 
         container.on('mousemove', (e: PIXI.FederatedPointerEvent) => {
@@ -154,8 +195,13 @@ export class LqButton {
 
 // main animation loop
         app.ticker.add(() => {
-            drawCircle(circleProps, graphicCircle, this.graphicsText, this.color);
-            drawCurve(curveProps, graphicCurve, this.color);
+                if (!isEqual(circleProps, this.lastCircleProps) ||
+                    !isEqual(curveProps, this.lastCurveProps)) {
+                    drawCircle(circleProps, graphicCircle, this.graphicsText, gradient);
+                    drawCurve(curveProps, graphicCurve, gradient);
+                    this.lastCircleProps = Object.assign({}, circleProps)
+                    this.lastCurveProps = Object.assign({}, curveProps)
+                }
         })
     }
 }

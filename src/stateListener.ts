@@ -18,10 +18,10 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
             centerX = centerXInit;
             centerY = centerYInit;
 
-            let anchor1X = centerX + circleRadius * Math.cos(Math.PI *2/ 5 + pointerAngle);
-            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI *2/ 5 + pointerAngle);
-            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI *2/ 5 + pointerAngle);
-            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI *2/ 5 + pointerAngle);
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI /3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI /3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI /3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI /3 + pointerAngle);
             let anchorX = centerX;
             let anchorY = centerY;
 
@@ -60,10 +60,10 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
             centerX = newCenterX;
             centerY = newCenterY;
 
-            let anchor1X = centerX + circleRadius * Math.cos(Math.PI *2/ 5 + pointerAngle);
-            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI *2/ 5 + pointerAngle);
-            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI *2/ 5 + pointerAngle);
-            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI *2/ 5 + pointerAngle);
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI/3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI/3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI/3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI/3 + pointerAngle);
             let anchorX = 2 * pointerX - centerX;
             let anchorY = 2 * pointerY - centerY;
 
@@ -90,10 +90,10 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
             // первый раз отлепить от границы
             centerX = centerX < 200 ? centerX + 1 : centerX - 1;
             centerY = centerY < 200 ? centerY + 1 : centerY - 1;
-            let anchor1X = centerX + circleRadius * Math.cos(Math.PI *2/ 5 + pointerAngle);
-            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI *2/ 5 + pointerAngle);
-            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI *2/ 5 + pointerAngle);
-            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI *2/ 5 + pointerAngle);
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI /3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI /3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI /3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI /3 + pointerAngle);
             let anchorX = centerX;
             let anchorY = centerY;
 
@@ -120,10 +120,10 @@ export const stateListener = (centerXInit: number, centerYInit: number, circlePr
             centerX = newCenterX;
             centerY = newCenterY;
 
-            let anchor1X = centerX + circleRadius * Math.cos(Math.PI *2/ 5 + pointerAngle);
-            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI *2/ 5 + pointerAngle);
-            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI *2/ 5 + pointerAngle);
-            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI *2/ 5 + pointerAngle);
+            let anchor1X = centerX + circleRadius * Math.cos(Math.PI /3 + pointerAngle);
+            let anchor1Y = centerY + circleRadius * Math.sin(Math.PI /3 + pointerAngle);
+            let anchor2X = centerX + circleRadius * Math.cos(-Math.PI /3 + pointerAngle);
+            let anchor2Y = centerY + circleRadius * Math.sin(-Math.PI /3 + pointerAngle);
             let distanceBetweenCenterMouse = Math.ceil(Math.sqrt(Math.pow((pointerX - centerXInit), 2) + Math.pow((pointerY - centerYInit), 2)))
             let anchorX
             let anchorY
