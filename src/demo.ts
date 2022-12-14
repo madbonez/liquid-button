@@ -11,12 +11,12 @@ font.load()
 const button = new LqButton(
     document.querySelector('#lq-button-submit'),
     'Submit',
-    false,
+    true,
     0xff9300,
     0xFFFFFF,
     heightGradient,
     {size: 36, lineHeight: 44, fontFamily:  'Inter-SemiBold'},
-    330,
-    100,
+    420,
+    120,
 );
 

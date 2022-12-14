@@ -1,13 +1,14 @@
 import * as PIXI from 'pixi.js';
 import { gsap } from 'gsap';
 import { PixiPlugin } from "gsap/dist/PixiPlugin";
-import {centerIt, drawCircle, drawCurve, isEqual} from './utils';
+import {centerIt, drawCircle, isEqual} from './utils';
 import { stateListener } from './stateListener';
+import { clickCircle } from './clickCircle';
+
 
 export class LqButton {
     private graphicsText: PIXI.Text;
     private lastCircleProps = {};
-    private lastCurveProps = {};
     constructor(
         private rootElement: HTMLElement,
         public text: string,
@@ -30,10 +31,9 @@ export class LqButton {
     private init() {
         PixiPlugin.registerPIXI(PIXI);
         gsap.registerPlugin(PixiPlugin);
-
         const RADIUS = this.radius;
         const BOUNDS_RADIUS = this.radius*4/3;
-        const CATCH_RADIUS = this.radius*17/12;
+        const CATCH_RADIUS = this.radius*4.1/3;
         const SIZE = this.size;
 
         const app = new PIXI.Application({
@@ -78,10 +78,9 @@ export class LqButton {
 
         const canvas = document.createElement('canvas');
         canvas.width = 1;
-        canvas.height = 400;
+        canvas.height = SIZE;
         const ctx = canvas.getContext('2d');
-        const grd = ctx.createLinearGradient(0, 0, 0, 400);
-
+        const grd = ctx.createLinearGradient(0, 0, 0, SIZE);
 
         function createGradTexture(color1, color2, size, heightGradient: number) {
             const lineY = heightGradient / canvas.height;
@@ -98,13 +97,11 @@ export class LqButton {
 
         const gradient = createGradTexture(this.color, this.textColor, SIZE, this.heightGradient)
 
-        container.addChild(graphicCurve)
         container.addChild(graphicCircle)
         container.addChild(graphicsHiddenCatchCircle)
         container.addChild(graphicsHiddenBoundsCircle)
         container.addChild(this.graphicsText)
 
-        centerIt(graphicCurve, app)
         centerIt(graphicCircle, app)
         centerIt(graphicsHiddenCatchCircle, app)
         centerIt(graphicsHiddenBoundsCircle, app)
@@ -115,21 +112,6 @@ export class LqButton {
         const
             offsetX = () => app.view.getBoundingClientRect().x,
             offsetY = () => app.view.getBoundingClientRect().y;
-
-        const
-            // смещение крайних точек сегмента от горизонта
-            degreeOffset = 30,
-            circleLeft = 180,
-            circleRight = 0;
-        let
-            anchor1X,
-            anchor1Y,
-            anchor2X,
-            anchor2Y,
-            anchorMiddleX,
-            anchorMiddleY,
-            centerX,
-            centerY;
 
         graphicsHiddenCatchCircle.beginFill(0, this.debugMode ? 0.101 : 0.001);
         graphicsHiddenCatchCircle.drawCircle(centerXInit, centerYInit, CATCH_RADIUS);
@@ -147,19 +129,17 @@ export class LqButton {
             radius: RADIUS,
         }
 
-        const curveProps = {
-            anchorX: centerXInit,
-            anchorY: centerYInit,
-            anchor1X: centerXInit,
-            anchor1Y: centerYInit,
-            anchor2Y: centerYInit,
-            anchor2X: centerXInit,
-        }
 
-        drawCircle(circleProps, graphicCircle, this.graphicsText, gradient);
-        const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, curveProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS);
+        drawCircle(circleProps, graphicCircle, gradient);
+        this.graphicsText.x = circleProps.centerX - this.graphicsText.width / 2;
+        this.graphicsText.y = circleProps.centerY - this.graphicsText.height / 2;
+        this.graphicsText.alpha = 1;
+
+        const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS, SIZE, this.graphicsText );
+        const clickCircleHandler = clickCircle(centerXInit, centerYInit, circleProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS, SIZE, this.graphicsText );
 
         container.on('mousemove', (e: PIXI.FederatedPointerEvent) => {
+
             let
                 pointerX = e.x - offsetX(),
                 pointerY = e.y - offsetY();
@@ -193,14 +173,31 @@ export class LqButton {
             }
         })
 
+        container.on('click', (e: PIXI.FederatedPointerEvent) => {
+
+            let
+                pointerX = e.x - offsetX(),
+                pointerY = e.y - offsetY();
+
+            const pointerInsideCircleBounds = graphicsHiddenBoundsCircle.containsPoint({
+                x: pointerX,
+                y: pointerY
+            });
+
+            if (pointerInsideCircleBounds) {
+                clickCircleHandler();
+            }
+
+        })
+        container.on('mouseleave', (e: PIXI.FederatedPointerEvent) => {
+                stateListenerHandler('outside', centerXInit, centerYInit, e.movement.x, e.movement.y);
+        })
+
 // main animation loop
         app.ticker.add(() => {
-                if (!isEqual(circleProps, this.lastCircleProps) ||
-                    !isEqual(curveProps, this.lastCurveProps)) {
-                    drawCircle(circleProps, graphicCircle, this.graphicsText, gradient);
-                    drawCurve(curveProps, graphicCurve, gradient);
+                if (!isEqual(circleProps, this.lastCircleProps) ) {
+                    drawCircle(circleProps, graphicCircle, gradient);
                     this.lastCircleProps = Object.assign({}, circleProps)
-                    this.lastCurveProps = Object.assign({}, curveProps)
                 }
         })
     }

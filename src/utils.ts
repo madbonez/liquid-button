@@ -7,25 +7,12 @@ export function centerIt(graphics, pixiApp) {
     graphics.pivot.y = pixiApp.screen.height / 2;
 }
 
-export function drawCircle(circleProps, graphicCircle, graphicsText: PIXI.Text, gradient:PIXI.Texture) {
+export function drawCircle(circleProps, graphicCircle, gradient:PIXI.Texture) {
 
     graphicCircle.clear();
     graphicCircle.beginTextureFill({texture: gradient});
     graphicCircle.drawCircle(circleProps.centerX, circleProps.centerY, circleProps.radius);
     graphicCircle.endFill();
-
-    if (graphicsText) {
-        graphicsText.x = circleProps.centerX - graphicsText.width / 2;
-        graphicsText.y = circleProps.centerY - graphicsText.height / 2;
-    }
-}
-
-export function drawCurve(curveProps, graphicCurve, gradient:PIXI.Texture) {
-    graphicCurve.clear();
-    graphicCurve.beginTextureFill({texture: gradient});
-    graphicCurve.moveTo(curveProps.anchor1X, curveProps.anchor1Y)
-    graphicCurve.quadraticCurveTo(curveProps.anchorX, curveProps.anchorY, curveProps.anchor2X, curveProps.anchor2Y)
-    graphicCurve.endFill();
 }
 
 export function isEqual(object1, object2) {
