@@ -75,6 +75,14 @@ export class LqButton {
             lineHeight: this.font.lineHeight,
             fill: this.textColor,
         });
+        this.graphicsText.pivot = {x: 0, y: 70};
+        this.graphicsText.y = 70;
+        this.graphicsText.alpha = 1;
+
+        const textContainer = new PIXI.Container();
+        textContainer.position = {x: SIZE / 2 - this.graphicsText.width / 2, y: SIZE / 2 - this.graphicsText.height / 2};
+        // textContainer.position = {x: 0, y: 0};
+        textContainer.addChild(this.graphicsText);
 
         const canvas = document.createElement('canvas');
         canvas.width = 1;
@@ -100,7 +108,7 @@ export class LqButton {
         container.addChild(graphicCircle)
         container.addChild(graphicsHiddenCatchCircle)
         container.addChild(graphicsHiddenBoundsCircle)
-        container.addChild(this.graphicsText)
+        container.addChild(textContainer)
 
         centerIt(graphicCircle, app)
         centerIt(graphicsHiddenCatchCircle, app)
@@ -131,11 +139,8 @@ export class LqButton {
 
 
         drawCircle(circleProps, graphicCircle, gradient);
-        this.graphicsText.x = circleProps.centerX - this.graphicsText.width / 2;
-        this.graphicsText.y = circleProps.centerY - this.graphicsText.height / 2;
-        this.graphicsText.alpha = 1;
 
-        const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS, SIZE, this.graphicsText );
+        const stateListenerHandler = stateListener(centerXInit, centerYInit, circleProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS, SIZE, this.graphicsText, textContainer );
         const clickCircleHandler = clickCircle(centerXInit, centerYInit, circleProps, RADIUS, BOUNDS_RADIUS, CATCH_RADIUS, SIZE, this.graphicsText );
 
         container.on('mousemove', (e: PIXI.FederatedPointerEvent) => {

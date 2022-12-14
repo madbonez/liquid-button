@@ -3,11 +3,6 @@ import "../index.css";
 
 const heightGradient = document.querySelector('#white').getBoundingClientRect().bottom - document.querySelector('#lq-button-submit').getBoundingClientRect().top
 
-let FontFaceObserver = require('fontfaceobserver');
-let font = new FontFaceObserver('Inter-SemiBold');
-
-font.load()
-
 const button = new LqButton(
     document.querySelector('#lq-button-submit'),
     'Submit',
