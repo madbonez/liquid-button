@@ -43,7 +43,7 @@ export class LqButton {
             backgroundColor: 0x000000,
             backgroundAlpha: this.debugMode ? 1 : 0
         });
-
+        this.rootElement.style.cursor = 'pointer';
         this.rootElement.appendChild(app.view as any);
 
         const container = new PIXI.Container();
